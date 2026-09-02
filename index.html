@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RBA Login Generator</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+h2 {
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    font-family: Arial, sans-serif;
+}
+
+button {
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #106ebe;
+}
+
+#output {
+    margin-top: 20px;
+    font-family: Consolas, monospace;
+    white-space: pre;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>RBA Login Generator</h2>
+
+<label><strong>Milwaukee Users</strong></label>
+<textarea
+    id="milwaukee"
+    rows="4"
+    placeholder="John Smith, Jane Doe, Bob Jones"></textarea>
+
+<label><strong>Greater Wisconsin Users</strong></label>
+<textarea
+    id="gwi"
+    rows="4"
+    placeholder="Damon Grosskreutz, Sally Johnson"></textarea>
+
+<button onclick="generate()">Generate Logins</button>
+
+<textarea
+    id="output"
+    rows="25"
+    readonly
+    placeholder="Generated credentials will appear here..."></textarea>
+
+</div>
+
+<script>
+
+function generatePassword() {
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+
+    let password =
+        upper[Math.floor(Math.random() * upper.length)] +
+        lower[Math.floor(Math.random() * lower.length)] +
+        lower[Math.floor(Math.random() * lower.length)];
+
+    for (let i = 0; i < 5; i++) {
+        password += numbers[Math.floor(Math.random() * numbers.length)];
+    }
+
+    return password;
+}
+
+function processUsers(userList, domain) {
+
+    let result = "";
+
+    userList
+        .split(",")
+        .map(name => name.trim())
+        .filter(name => name.length > 0)
+        .forEach(name => {
+
+            const parts = name.trim().split(/\s+/);
+
+            if (parts.length < 2) return;
+
+            const firstName = parts[0];
+
+            // Remove spaces, hyphens, apostrophes, etc.
+            const lastName = parts
+                .slice(1)
+                .join("")
+                .replace(/[^a-zA-Z]/g, "");
+
+            const password = generatePassword();
+
+            result +=
+`Here are the logins for ${firstName} ${lastName}:
+
+O365:
+Username: ${firstName}${lastName[0]}${domain}
+Temp Password: ${password}
+
+Enabled+:
+Username: ${firstName}${lastName}
+Password: ${password}!
+
+============================================================
+
+`;
+
+        });
+
+    return result;
+}
+
+function generate() {
+
+    const milwaukeeUsers =
+        document.getElementById("milwaukee").value;
+
+    const gwiUsers =
+        document.getElementById("gwi").value;
+
+    let output = "";
+
+    output += processUsers(
+        milwaukeeUsers,
+        "@rbamilwaukee.com"
+    );
+
+    output += processUsers(
+        gwiUsers,
+        "@teamrba.com"
+    );
+
+    document.getElementById("output").value = output;
+}
+
+</script>
+
+</body>
+</html>
