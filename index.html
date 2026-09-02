@@ -62,19 +62,20 @@ button:hover {
 
 <div class="container">
 
-<h2>RBA Login Generator</h2>
+<h1>RBA Login Generator</h1>
+<p>Enter employee logins for each location. List should be comma deliminated</p><img src = "https://cdn3.emoji.gg/emojis/2071-cat-thumbs-up.png" style="width: 50px; height: auto;">
 
 <label><strong>Milwaukee Users</strong></label>
 <textarea
     id="milwaukee"
     rows="4"
-    placeholder="John Smith, Jane Doe, Bob Jones"></textarea>
+    placeholder="Ex. JoJo Mejias"></textarea>
 
 <label><strong>Greater Wisconsin Users</strong></label>
 <textarea
     id="gwi"
     rows="4"
-    placeholder="Damon Grosskreutz, Sally Johnson"></textarea>
+    placeholder="Ex. Sara Soroko, Ryu Yang"></textarea>
 
 <button onclick="generate()">Generate Logins</button>
 
@@ -105,31 +106,42 @@ function generatePassword() {
     return password;
 }
 
-function processUsers(userList, domain) {
+function processUsers(userList, domain, sectionTitle) {
 
-    let result = "";
-
-    userList
+    const users = userList
         .split(",")
         .map(name => name.trim())
-        .filter(name => name.length > 0)
-        .forEach(name => {
+        .filter(name => name.length > 0);
 
-            const parts = name.trim().split(/\s+/);
+    if (users.length === 0) {
+        return "";
+    }
 
-            if (parts.length < 2) return;
+    let result =
 
-            const firstName = parts[0];
+`============================================================
+${sectionTitle}
+============================================================
 
-            // Remove spaces, hyphens, apostrophes, etc.
-            const lastName = parts
-                .slice(1)
-                .join("")
-                .replace(/[^a-zA-Z]/g, "");
+`;
 
-            const password = generatePassword();
+    users.forEach(name => {
 
-            result +=
+        const parts = name.trim().split(/\s+/);
+
+        if (parts.length < 2) return;
+
+        const firstName = parts[0];
+
+        // Removes spaces, hyphens, apostrophes, etc.
+        const lastName = parts
+            .slice(1)
+            .join("")
+            .replace(/[^a-zA-Z]/g, "");
+
+        const password = generatePassword();
+
+        result +=
 `Here are the logins for ${firstName} ${lastName}:
 
 O365:
@@ -140,11 +152,13 @@ Enabled+:
 Username: ${firstName}${lastName}
 Password: ${password}!
 
-============================================================
+------------------------------------------------------------
 
 `;
 
-        });
+    });
+
+    result += "\n";
 
     return result;
 }
@@ -161,12 +175,14 @@ function generate() {
 
     output += processUsers(
         milwaukeeUsers,
-        "@rbamilwaukee.com"
+        "@rbamilwaukee.com",
+        "MILWAUKEE USERS"
     );
 
     output += processUsers(
         gwiUsers,
-        "@teamrba.com"
+        "@teamrba.com",
+        "GREATER WISCONSIN USERS"
     );
 
     document.getElementById("output").value = output;
